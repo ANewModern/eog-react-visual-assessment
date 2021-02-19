@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { useQuery, gql } from '@apollo/client';
@@ -23,11 +23,12 @@ const metricsQuery = gql`
 export default () => {
   const dispatch = useDispatch();
   const classes = useStyles();
-  const [items, setItems] = useState<string[]>([]);
-  const [options, setOptions] = useState<string[]>([]);
   const { loading, error, data } = useQuery(metricsQuery);
-  const metrics = useSelector((state: StateInterface) => state.metrics.metricTypes)
-  
+  const { metricTypes, selectedMetrics } = useSelector((state: StateInterface) => ({
+    metricTypes: state.metrics.metricTypes,
+    selectedMetrics: state.metrics.selectedMetrics,
+  }));
+
   useEffect(() => {
     if (!loading && data) {
       const metrics = data.getMetrics.map((metric: string) => metric);
@@ -39,17 +40,14 @@ export default () => {
     // eslint-disable-next-line
   }, [loading, error, data]);
 
-  useEffect(() => {
-    if (metrics.length) {
-      setOptions(metrics)
-    }
-    return () => {};
-  }, [metrics]);
+  const setItems = (items: string[]) => {
+    dispatch(actions.updateSelectedMetrics(items));
+  };
 
   return (
     <Box className={classes.container}>
-      {options.length && (
-        <Multiselect selectedItems={items} options={options} setItemsParent={setItems} title={'title'} />
+      {!!metricTypes.length && (
+        <Multiselect selectedItems={selectedMetrics} options={metricTypes} setItemsParent={setItems} title={'Metric Types'} />
       )}
     </Box>
   );
