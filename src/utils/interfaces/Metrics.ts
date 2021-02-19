@@ -3,6 +3,7 @@ export default interface MetricsInterface {
   selectedMetrics: string[];
   metricsData: MultipleMetrics[];
   metricsLastKnown: LastKnownMetric[];
+  graphColors: string[];
 }
 
 export interface MultipleMetrics {

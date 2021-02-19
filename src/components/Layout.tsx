@@ -8,6 +8,7 @@ import Multiselect from './Multiselect';
 import StateInterface from '../utils/interfaces/State';
 import Metrics from '../Features/Metrics/Metrics';
 import Graph from '../Features/Graph/Graph';
+import { generateRandomColor } from '../utils/common';
 
 const useStyles = makeStyles({
   container: {
@@ -47,10 +48,11 @@ export default () => {
   // initial query to get metric types
   const { loading, error, data } = useQuery(metricsQuery);
   // call state to get our current values
-  const { metricTypes, selectedMetrics, metricsLastKnown } = useSelector((state: StateInterface) => ({
+  const { metricTypes, selectedMetrics, metricsLastKnown, graphColors } = useSelector((state: StateInterface) => ({
     metricTypes: state.metrics.metricTypes,
     selectedMetrics: state.metrics.selectedMetrics,
     metricsLastKnown: state.metrics.metricsLastKnown,
+    graphColors: state.metrics.graphColors,
   }));
 
   // If loading is false and data exists, we send the data to our state to use
@@ -64,6 +66,19 @@ export default () => {
     // We add this line to ignore the warning to add Dispatch to the dependency array since we do not want a render when this changes
     // eslint-disable-next-line
   }, [loading, error, data]);
+
+  useEffect(() => {
+    if (!graphColors.length && metricTypes.length) {
+      const colors = []
+      for (let i = 0; i < metricTypes.length; i++) {
+        colors.push(generateRandomColor())
+      }
+      dispatch(actions.setGraphColors(colors));
+    }
+    return () => {};
+
+    // eslint-disable-next-line
+  }, [metricTypes]);
 
   const updateSelectedItems = (items: string[]) => {
     dispatch(actions.updateSelectedMetrics(items));

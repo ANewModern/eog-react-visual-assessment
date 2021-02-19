@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useQuery, gql } from '@apollo/client';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box } from '@material-ui/core';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import Plot from 'react-plotly.js';
 import { actions } from '../Graph/reducer';
 import { LastKnownMetric } from '../../utils/interfaces/Metrics';
 import { parseMultipleMetric } from '../../utils/common';
@@ -15,7 +15,11 @@ interface PropTypes {
 
 const useStyles = makeStyles({
   container: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
     width: '100%',
+    height: '100%',
     boxSizing: 'border-box',
   },
 });
@@ -55,7 +59,10 @@ export default (props: PropTypes) => {
   const dispatch = useDispatch();
   const { items } = props;
   const classes = useStyles();
-  const metricsData = useSelector((state: StateInterface) => state.metrics.metricsData);
+  const { metricsData, graphColors } = useSelector((state: StateInterface) => ({
+    metricsData: state.metrics.metricsData,
+    graphColors: state.metrics.graphColors,
+  }));
   const { loading, error, data } = useQuery(
     gql`
       ${generateQueryMultiples(items)}
@@ -80,5 +87,21 @@ export default (props: PropTypes) => {
     // eslint-disable-next-line
   }, [loading, error, data]);
 
-  return <Box className={classes.container}></Box>;
+  return (
+    <Box className={classes.container}>
+      {!!metricsData.length && (
+        <Plot
+          data={metricsData.map((metric, idx) => ({
+            x: metric.measurements.map(measurement => new Date(measurement.at)),
+            y: metric.measurements.map(measurement => measurement.value),
+            type: 'scatter',
+            mode: 'lines',
+            marker: { color: graphColors[idx] },
+          }))}
+          config={{ responsive: true }}
+          layout={{ width: 800, height: 500, title: 'A Fancy Plot' }}
+        />
+      )}
+    </Box>
+  );
 };

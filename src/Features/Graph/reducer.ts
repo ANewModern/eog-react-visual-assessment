@@ -10,6 +10,7 @@ const initialState: MetricState = {
   selectedMetrics: [],
   metricsData: [],
   metricsLastKnown: [],
+  graphColors: []
 };
 
 const slice = createSlice({
@@ -27,6 +28,9 @@ const slice = createSlice({
     },
     updateMultipleMetrics: (state, action: PayloadAction<Array<MultipleMetrics>>) => {
       state.metricsData = action.payload
+    },
+    setGraphColors: (state, action: PayloadAction<Array<string>>) => {
+      state.graphColors = action.payload
     },
     metricsApiErrorReceived: (state, action: PayloadAction<ApiErrorAction>) => state,
   },
