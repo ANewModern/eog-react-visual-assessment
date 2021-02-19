@@ -10,8 +10,27 @@ import Metrics from '../Features/Metrics/Metrics';
 
 const useStyles = makeStyles({
   container: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     width: '100%',
+    height: '93%',
     boxSizing: 'border-box',
+  },
+  innerContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  componentContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    width: '50%',
+    height: '100%',
+    padding: '16px',
   },
 });
 
@@ -50,15 +69,22 @@ export default () => {
 
   return (
     <Box className={classes.container}>
-      {!!metricTypes.length && (
-        <Multiselect
-          selectedItems={selectedMetrics}
-          options={metricTypes}
-          setItemsParent={updateSelectedItems}
-          title={'Metric Types'}
-        />
-      )}
-      {!!selectedMetrics.length && <Metrics items={selectedMetrics} />}
+      <Box className={classes.innerContainer} style={{ height: '30%' }}>
+        <Box className={classes.componentContainer}>
+          {!!selectedMetrics.length && <Metrics items={selectedMetrics} />}
+        </Box>
+        <Box className={classes.componentContainer} style={{ alignItems: 'flex-start' }}>
+          {!!metricTypes.length && (
+            <Multiselect
+              selectedItems={selectedMetrics}
+              options={metricTypes}
+              setItemsParent={updateSelectedItems}
+              title={'Metric Types'}
+            />
+          )}
+        </Box>
+      </Box>
+      <Box className={classes.innerContainer} style={{ height: '70%' }}></Box>
     </Box>
   );
 };

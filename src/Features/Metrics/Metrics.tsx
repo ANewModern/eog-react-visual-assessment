@@ -29,7 +29,7 @@ const useStyles = makeStyles({
     borderRadius: '8px',
     background: 'white',
     padding: '16px',
-    margin: '16px',
+    margin: '8px',
   },
 });
 
