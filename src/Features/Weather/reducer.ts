@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from 'redux-starter-kit';
+import WeatherInterface from '../../utils/interfaces/Weather';
 
 export type WeatherForLocation = {
   description: string;
@@ -10,7 +11,7 @@ export type ApiErrorAction = {
   error: string;
 };
 
-const initialState = {
+const initialState: WeatherInterface = {
   temperatureinCelsius: 0,
   temperatureinFahrenheit: 0,
   description: '',
