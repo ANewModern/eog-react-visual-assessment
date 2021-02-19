@@ -1,9 +1,15 @@
 export default interface MetricsInterface {
   metricTypes: string[];
   selectedMetrics: string[];
-  metricsData: object[];
+  metricsData: MultipleMetrics[];
   metricsLastKnown: LastKnownMetric[];
 }
+
+export interface MultipleMetrics {
+  measurements: LastKnownMetric[];
+  metric: string;
+}
+
 export interface LastKnownMetric {
   at: number;
   metric: string;

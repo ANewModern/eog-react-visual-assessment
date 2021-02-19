@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Box, Typography } from '@material-ui/core';
 import { actions } from '../Graph/reducer';
 import StateInterface from '../../utils/interfaces/State';
+import { parseLastKnownMetric } from '../../utils/common';
 
 interface PropTypes {
   items: string[];
@@ -79,12 +80,7 @@ export default (props: PropTypes) => {
       const lastKnownMetrics = [];
       for (const key in data) {
         if (data.hasOwnProperty(key)) {
-          lastKnownMetrics.push({
-            at: data[key].at,
-            metric: data[key].metric,
-            unit: data[key].unit,
-            value: data[key].value,
-          });
+          lastKnownMetrics.push(parseLastKnownMetric(data[key]));
         }
       }
 
