@@ -90,7 +90,6 @@ export default (props: PropTypes) => {
           },
         }}
         renderValue={(value: any) => {
-          console.log(value);
           return value.join(', ');
         }}
       >
