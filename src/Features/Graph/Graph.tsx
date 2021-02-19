@@ -3,16 +3,16 @@ import { useQuery, gql } from '@apollo/client';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box } from '@material-ui/core';
 
+interface PropTypes {
+  items: string[]
+}
+
 const useStyles = makeStyles({
   container: {
     width: '100%',
     boxSizing: 'border-box',
   },
 });
-
-interface PropTypes {
-  items: string[];
-}
 
 const generateQueryMultiples = (metrics: string[]) => {
   const measurementsTemplate = `
