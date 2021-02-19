@@ -54,6 +54,8 @@ interface PropTypes {
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 
+
+// multi select component to be able to multi select options
 export default (props: PropTypes) => {
   const { selectedItems, options, setItemsParent, title } = props;
   const classes = useStyles();

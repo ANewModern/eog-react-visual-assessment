@@ -23,12 +23,15 @@ const metricsQuery = gql`
 export default () => {
   const dispatch = useDispatch();
   const classes = useStyles();
+  // initial query to get metric types
   const { loading, error, data } = useQuery(metricsQuery);
+  // call state to get our current values
   const { metricTypes, selectedMetrics } = useSelector((state: StateInterface) => ({
     metricTypes: state.metrics.metricTypes,
     selectedMetrics: state.metrics.selectedMetrics,
   }));
 
+  // If loading is false and data exists, we send the data to our state to use
   useEffect(() => {
     if (!loading && data) {
       const metrics = data.getMetrics.map((metric: string) => metric);
