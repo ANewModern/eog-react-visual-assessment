@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { useQuery, gql } from '@apollo/client';
@@ -6,6 +6,7 @@ import { Box } from '@material-ui/core';
 import { actions } from '../Features/Graph/reducer';
 import Multiselect from './Multiselect';
 import StateInterface from '../utils/interfaces/State';
+import Graph from '../Features/Graph/Graph';
 
 const useStyles = makeStyles({
   container: {
@@ -43,15 +44,21 @@ export default () => {
     // eslint-disable-next-line
   }, [loading, error, data]);
 
-  const setItems = (items: string[]) => {
+  const updateSelectedItems = (items: string[]) => {
     dispatch(actions.updateSelectedMetrics(items));
   };
 
   return (
     <Box className={classes.container}>
       {!!metricTypes.length && (
-        <Multiselect selectedItems={selectedMetrics} options={metricTypes} setItemsParent={setItems} title={'Metric Types'} />
+        <Multiselect
+          selectedItems={selectedMetrics}
+          options={metricTypes}
+          setItemsParent={updateSelectedItems}
+          title={'Metric Types'}
+        />
       )}
+      {!!selectedMetrics.length && <Graph items={selectedMetrics} />}
     </Box>
   );
 };
