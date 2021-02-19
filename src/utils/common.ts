@@ -15,7 +15,7 @@ const parseMultipleMetric = (multiMetric: any) => {
     metric: multiMetric.metric,
     measurements: multiMetric.measurements.map((measurement: any) => parseLastKnownMetric(measurement)),
   };
-  return parsedMultiMetric
+  return parsedMultiMetric;
 };
 
 export { parseLastKnownMetric, parseMultipleMetric };

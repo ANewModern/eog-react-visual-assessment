@@ -1,10 +1,16 @@
 import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useQuery, gql } from '@apollo/client';
 import { makeStyles } from '@material-ui/core/styles';
 import { Box } from '@material-ui/core';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { actions } from '../Graph/reducer';
+import { LastKnownMetric } from '../../utils/interfaces/Metrics';
+import { parseMultipleMetric } from '../../utils/common';
+import StateInterface from '../../utils/interfaces/State';
 
 interface PropTypes {
-  items: string[]
+  items: LastKnownMetric[];
 }
 
 const useStyles = makeStyles({
@@ -14,7 +20,7 @@ const useStyles = makeStyles({
   },
 });
 
-const generateQueryMultiples = (metrics: string[]) => {
+const generateQueryMultiples = (metrics: LastKnownMetric[]) => {
   const measurementsTemplate = `
     measurement: getMultipleMeasurements(input: {
       metricName: "measurement",
@@ -30,36 +36,15 @@ const generateQueryMultiples = (metrics: string[]) => {
         }
     }
   `;
-  const currentTime = new Date().getTime();
-  const halfHourBeforeTime = new Date(currentTime + -30 * 60000).getTime();
 
   return `
     query Measurements {
       ${metrics.map(metric => {
         const query = measurementsTemplate
-          .replace('measurement', metric)
-          .replace('currentTime', currentTime.toString())
-          .replace('halfHourBeforeTime', halfHourBeforeTime.toString());
-        return query;
-      })}
-    }
-  `;
-};
-
-const generateQueryLastKnown = (metrics: string[]) => {
-  const measurementsTemplate = `
-    measurement: getLastKnownMeasurement(metricName: "measurement") {
-      metric,
-      at,
-      value,
-      unit,
-    }
-  `;
-
-  return `
-    query Measurements {
-      ${metrics.map(metric => {
-        const query = measurementsTemplate.replace('measurement', metric).replace('"measurement"', `"${metric}"`);
+          .replace('measurement', metric.metric)
+          .replace('"measurement"', `"${metric.metric}"`)
+          .replace('currentTime', new Date(metric.at).getTime().toString())
+          .replace('halfHourBeforeTime', new Date(metric.at + -30 * 60000).getTime().toString());
         return query;
       })}
     }
@@ -67,18 +52,27 @@ const generateQueryLastKnown = (metrics: string[]) => {
 };
 
 export default (props: PropTypes) => {
+  const dispatch = useDispatch();
   const { items } = props;
   const classes = useStyles();
+  const metricsData = useSelector((state: StateInterface) => state.metrics.metricsData);
   const { loading, error, data } = useQuery(
     gql`
-      ${generateQueryLastKnown(items)}
+      ${generateQueryMultiples(items)}
     `,
   );
 
   // If loading is false and data exists, we send the data to our state to use
   useEffect(() => {
     if (!loading && data) {
-      console.log(data);
+      const multipleMetrics = [];
+      for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+          multipleMetrics.push(parseMultipleMetric(data[key][0]));
+        }
+      }
+
+      dispatch(actions.updateMultipleMetrics(multipleMetrics));
     }
     return () => {};
 

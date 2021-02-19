@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from 'redux-starter-kit';
-import MetricState, { LastKnownMetric } from '../../utils/interfaces/Metrics';
+import MetricState, { LastKnownMetric, MultipleMetrics } from '../../utils/interfaces/Metrics';
 
 export type ApiErrorAction = {
   error: string;
@@ -24,6 +24,9 @@ const slice = createSlice({
     },
     updateLastKnown: (state, action: PayloadAction<Array<LastKnownMetric>>) => {
       state.metricsLastKnown = action.payload
+    },
+    updateMultipleMetrics: (state, action: PayloadAction<Array<MultipleMetrics>>) => {
+      state.metricsData = action.payload
     },
     metricsApiErrorReceived: (state, action: PayloadAction<ApiErrorAction>) => state,
   },

@@ -7,6 +7,7 @@ import { actions } from '../Features/Graph/reducer';
 import Multiselect from './Multiselect';
 import StateInterface from '../utils/interfaces/State';
 import Metrics from '../Features/Metrics/Metrics';
+import Graph from '../Features/Graph/Graph';
 
 const useStyles = makeStyles({
   container: {
@@ -46,9 +47,10 @@ export default () => {
   // initial query to get metric types
   const { loading, error, data } = useQuery(metricsQuery);
   // call state to get our current values
-  const { metricTypes, selectedMetrics } = useSelector((state: StateInterface) => ({
+  const { metricTypes, selectedMetrics, metricsLastKnown } = useSelector((state: StateInterface) => ({
     metricTypes: state.metrics.metricTypes,
     selectedMetrics: state.metrics.selectedMetrics,
+    metricsLastKnown: state.metrics.metricsLastKnown,
   }));
 
   // If loading is false and data exists, we send the data to our state to use
@@ -84,7 +86,9 @@ export default () => {
           )}
         </Box>
       </Box>
-      <Box className={classes.innerContainer} style={{ height: '70%' }}></Box>
+      <Box className={classes.innerContainer} style={{ height: '70%' }}>
+        {!!metricsLastKnown.length && <Graph items={metricsLastKnown} />}
+      </Box>
     </Box>
   );
 };
