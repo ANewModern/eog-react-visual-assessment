@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { useQuery, gql } from '@apollo/client';
-import { Box } from '@material-ui/core';
+import { Box, withWidth } from '@material-ui/core';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { actions } from '../Features/Graph/reducer';
@@ -11,6 +11,14 @@ import StateInterface from '../utils/interfaces/State';
 import Metrics from '../Features/Metrics/Metrics';
 import Graph from '../Features/Graph/Graph';
 import { generateRandomColor } from '../utils/common';
+
+interface propTypes {
+  width: string;
+}
+
+interface PropStyles {
+  width: string;
+}
 
 const useStyles = makeStyles({
   container: {
@@ -22,20 +30,21 @@ const useStyles = makeStyles({
     height: '93%',
     boxSizing: 'border-box',
   },
-  innerContainer: {
+  innerContainer: (props: PropStyles) => ({
     display: 'flex',
+    flexDirection: props.width === 'xs' || props.width === 'sm' ? 'column-reverse' : 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-  },
-  componentContainer: {
+  }),
+  componentContainer: (props: PropStyles) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    width: '50%',
+    width: props.width === 'xs' || props.width === 'sm' ? '100%' : '50%',
     height: '100%',
     padding: '16px',
-  },
+  }),
 });
 
 const metricsQuery = gql`
@@ -44,9 +53,10 @@ const metricsQuery = gql`
   }
 `;
 
-export default () => {
+export default withWidth()((props: propTypes) => {
+  const { width } = props;
   const dispatch = useDispatch();
-  const classes = useStyles();
+  const classes = useStyles({ width });
   // initial query to get metric types
   const { loading, error, data } = useQuery(metricsQuery);
   // call state to get our current values
@@ -135,4 +145,4 @@ export default () => {
       />
     </>
   );
-};
+});

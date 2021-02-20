@@ -2,24 +2,29 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useQuery, gql } from '@apollo/client';
 import { makeStyles } from '@material-ui/core/styles';
-import { Box, Typography } from '@material-ui/core';
+import { Box, Typography, withWidth } from '@material-ui/core';
 import { actions } from '../Graph/reducer';
 import StateInterface from '../../utils/interfaces/State';
 import { parseLastKnownMetric } from '../../utils/common';
 
 interface PropTypes {
   items: string[];
+  width: string;
+}
+
+interface PropStyles {
+  width: string;
 }
 
 const useStyles = makeStyles({
-  container: {
+  container: (props: PropStyles) => ({
     display: 'flex',
     flexWrap: 'wrap',
-    justifyContent: 'flex-start',
+    justifyContent: props.width === 'xs' || props.width === 'sm' ? 'space-around' : 'flex-start',
     alignItems: 'center',
     width: '100%',
     boxSizing: 'border-box',
-  },
+  }),
   card: {
     display: 'flex',
     flexDirection: 'column',
@@ -33,7 +38,6 @@ const useStyles = makeStyles({
     margin: '8px',
   },
 });
-
 
 // This generates a query for the last known values of selected metrics
 const generateQueryLastKnown = (metrics: string[]) => {
@@ -56,10 +60,10 @@ const generateQueryLastKnown = (metrics: string[]) => {
   `;
 };
 
-export default (props: PropTypes) => {
+export default withWidth()((props: PropTypes) => {
   const dispatch = useDispatch();
-  const { items } = props;
-  const classes = useStyles();
+  const { items, width } = props;
+  const classes = useStyles({ width });
   const metricsLastKnown = useSelector((state: StateInterface) => state.metrics.metricsLastKnown);
 
   const { loading, error, data } = useQuery(
@@ -85,7 +89,7 @@ export default (props: PropTypes) => {
     }
 
     if (error) {
-      dispatch(actions.metricsApiErrorReceived({error: 'Could not obtain last known data for selected metrics'}))
+      dispatch(actions.metricsApiErrorReceived({ error: 'Could not obtain last known data for selected metrics' }));
     }
 
     return () => {};
@@ -104,4 +108,4 @@ export default (props: PropTypes) => {
       ))}
     </Box>
   );
-};
+});

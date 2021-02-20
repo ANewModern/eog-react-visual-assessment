@@ -23,7 +23,6 @@ const useStyles = makeStyles({
   },
 });
 
-
 // this generates the query for metrics the user has selected from which the interval of time gathered is between the time of the last known measurement and 30 minutes before that
 const generateQueryMultiples = (metrics: LastKnownMetric[]) => {
   const measurementsTemplate = `
@@ -111,6 +110,14 @@ export default (props: PropTypes) => {
     `,
   );
 
+  const resize = () => {
+    // we get the container pixels to generate what size the chart should be
+    if (containerRef.current) {
+      setGraphWidth(containerRef.current.clientWidth - 48);
+      setGraphHeight(containerRef.current.clientHeight - 48);
+    }
+  };
+
   // If loading is false and data exists, we send the data to our state to use
   useEffect(() => {
     if (!loading && data) {
@@ -121,11 +128,8 @@ export default (props: PropTypes) => {
         }
       }
 
-      // we get the container pixels to generate what size the chart should be
-      if (containerRef.current) {
-        setGraphWidth(containerRef.current.clientWidth - 48);
-        setGraphHeight(containerRef.current.clientHeight - 48);
-      }
+      window.addEventListener('resize', resize);
+      resize();
 
       dispatch(actions.updateMultipleMetrics(multipleMetrics));
     }
