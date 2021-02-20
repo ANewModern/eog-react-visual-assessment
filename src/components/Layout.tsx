@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { useQuery, gql } from '@apollo/client';
 import { Box } from '@material-ui/core';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { actions } from '../Features/Graph/reducer';
 import Multiselect from './Multiselect';
 import StateInterface from '../utils/interfaces/State';
@@ -69,12 +71,17 @@ export default () => {
 
   useEffect(() => {
     if (!graphColors.length && metricTypes.length) {
-      const colors = []
+      const colors = [];
       for (let i = 0; i < metricTypes.length; i++) {
-        colors.push(generateRandomColor())
+        colors.push(generateRandomColor());
       }
       dispatch(actions.setGraphColors(colors));
     }
+
+    if (error) {
+      dispatch(actions.metricsApiErrorReceived({ error: 'Could not obtain metric data' }));
+    }
+
     return () => {};
 
     // eslint-disable-next-line
@@ -85,25 +92,38 @@ export default () => {
   };
 
   return (
-    <Box className={classes.container}>
-      <Box className={classes.innerContainer} style={{ height: '30%' }}>
-        <Box className={classes.componentContainer}>
-          {!!selectedMetrics.length && <Metrics items={selectedMetrics} />}
+    <>
+      <Box className={classes.container}>
+        <Box className={classes.innerContainer} style={{ height: '30%' }}>
+          <Box className={classes.componentContainer}>
+            {!!selectedMetrics.length && <Metrics items={selectedMetrics} />}
+          </Box>
+          <Box className={classes.componentContainer} style={{ alignItems: 'flex-start' }}>
+            {!!metricTypes.length && (
+              <Multiselect
+                selectedItems={selectedMetrics}
+                options={metricTypes}
+                setItemsParent={updateSelectedItems}
+                title={'Metric Types'}
+              />
+            )}
+          </Box>
         </Box>
-        <Box className={classes.componentContainer} style={{ alignItems: 'flex-start' }}>
-          {!!metricTypes.length && (
-            <Multiselect
-              selectedItems={selectedMetrics}
-              options={metricTypes}
-              setItemsParent={updateSelectedItems}
-              title={'Metric Types'}
-            />
-          )}
+        <Box className={classes.innerContainer} style={{ height: '70%' }}>
+          {!!metricsLastKnown.length && <Graph items={metricsLastKnown} />}
         </Box>
       </Box>
-      <Box className={classes.innerContainer} style={{ height: '70%' }}>
-        {!!metricsLastKnown.length && <Graph items={metricsLastKnown} />}
-      </Box>
-    </Box>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+    </>
   );
 };

@@ -106,6 +106,11 @@ export default (props: PropTypes) => {
 
       dispatch(actions.updateMultipleMetrics(multipleMetrics));
     }
+
+    if (error) {
+      dispatch(actions.metricsApiErrorReceived({error: 'Could not obtain data for chart'}))
+    }
+
     return () => {};
 
     // We add this line to ignore the warning to add Dispatch to the dependency array since we do not want a render when this changes

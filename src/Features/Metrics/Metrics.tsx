@@ -86,6 +86,11 @@ export default (props: PropTypes) => {
 
       dispatch(actions.updateLastKnown(lastKnownMetrics));
     }
+
+    if (error) {
+      dispatch(actions.metricsApiErrorReceived({error: 'Could not obtain last known data for selected metrics'}))
+    }
+
     return () => {};
 
     // We add this line to ignore the warning to add Dispatch to the dependency array since we do not want a render when this changes
