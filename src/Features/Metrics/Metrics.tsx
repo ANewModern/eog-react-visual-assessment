@@ -62,9 +62,6 @@ export default (props: PropTypes) => {
   const classes = useStyles();
   const metricsLastKnown = useSelector((state: StateInterface) => state.metrics.metricsLastKnown);
 
-  gql`
-    ${generateQueryLastKnown(items)}
-  `;
   const { loading, error, data } = useQuery(
     gql`
       ${generateQueryLastKnown(items)}
