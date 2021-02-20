@@ -1,12 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useQuery, gql } from '@apollo/client';
 import { makeStyles } from '@material-ui/core/styles';
-import { Box } from '@material-ui/core';
 import Plot from 'react-plotly.js';
 import { actions } from '../Graph/reducer';
-import { LastKnownMetric } from '../../utils/interfaces/Metrics';
-import { parseMultipleMetric } from '../../utils/common';
+import { LastKnownMetric, MultipleMetrics } from '../../utils/interfaces/Metrics';
+import { isUnique, parseMultipleMetric } from '../../utils/common';
 import StateInterface from '../../utils/interfaces/State';
 
 interface PropTypes {
@@ -55,10 +54,31 @@ const generateQueryMultiples = (metrics: LastKnownMetric[]) => {
   `;
 };
 
+const createAxis = (metrics: MultipleMetrics[], colors: string[]) => {
+  const types: string[] = metrics.map(metric => metric.measurements[0].unit).filter(isUnique);
+  const axis: any = {};
+
+  types.map((type, idx) => {
+    axis[`yaxis${idx + 1}`] = {
+      title: type,
+      anchor: 'free',
+      overlaying: 'y',
+      side: 'left',
+      position: 0.15 * idx,
+    };
+    return type;
+  });
+
+  return axis;
+};
+
 export default (props: PropTypes) => {
   const dispatch = useDispatch();
   const { items } = props;
   const classes = useStyles();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [graphHeight, setGraphHeight] = useState<number>(0);
+  const [graphWidth, setGraphWidth] = useState<number>(0);
   const { metricsData, graphColors } = useSelector((state: StateInterface) => ({
     metricsData: state.metrics.metricsData,
     graphColors: state.metrics.graphColors,
@@ -79,6 +99,11 @@ export default (props: PropTypes) => {
         }
       }
 
+      if (containerRef.current) {
+        setGraphWidth(containerRef.current.clientWidth - 48);
+        setGraphHeight(containerRef.current.clientHeight - 48);
+      }
+
       dispatch(actions.updateMultipleMetrics(multipleMetrics));
     }
     return () => {};
@@ -88,20 +113,29 @@ export default (props: PropTypes) => {
   }, [loading, error, data]);
 
   return (
-    <Box className={classes.container}>
+    <div className={classes.container} ref={containerRef}>
       {!!metricsData.length && (
         <Plot
-          data={metricsData.map((metric, idx) => ({
-            x: metric.measurements.map(measurement => new Date(measurement.at)),
-            y: metric.measurements.map(measurement => measurement.value),
-            type: 'scatter',
-            mode: 'lines',
-            marker: { color: graphColors[idx] },
-          }))}
+          data={metricsData.map((metric, idx) => {
+            return {
+              x: metric.measurements.map(measurement => new Date(measurement.at)),
+              y: metric.measurements.map(measurement => measurement.value),
+              type: 'scatter',
+              mode: 'lines',
+              marker: { color: graphColors[idx] },
+              yaxis: `yaxis${idx + 1}`,
+              name: metric.metric,
+            };
+          })}
           config={{ responsive: true }}
-          layout={{ width: 800, height: 500, title: 'A Fancy Plot' }}
+          layout={{
+            width: graphWidth,
+            height: graphHeight,
+            borderRadius: '8px',
+            ...createAxis(metricsData, graphColors),
+          }}
         />
       )}
-    </Box>
+    </div>
   );
 };

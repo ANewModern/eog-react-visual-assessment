@@ -28,4 +28,8 @@ const generateRandomColor = () => {
   return color;
 };
 
-export { parseLastKnownMetric, parseMultipleMetric, generateRandomColor };
+const isUnique = (value: any, index: number, self: any) => {
+  return self.indexOf(value) === index;
+}
+
+export { parseLastKnownMetric, parseMultipleMetric, generateRandomColor, isUnique };
