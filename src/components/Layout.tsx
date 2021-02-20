@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import { useQuery, gql } from '@apollo/client';
 import { Box } from '@material-ui/core';
-import { ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { actions } from '../Features/Graph/reducer';
 import Multiselect from './Multiselect';
@@ -76,6 +76,15 @@ export default () => {
         colors.push(generateRandomColor());
       }
       dispatch(actions.setGraphColors(colors));
+      toast('Click on a metric type to get started!', {
+        position: 'top-left',
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
 
     if (error) {
