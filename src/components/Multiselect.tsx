@@ -10,6 +10,8 @@ import {
   ListItemText,
 } from '@material-ui/core';
 import CheckIcon from '@material-ui/icons/Check';
+import HighlightOffIcon from '@material-ui/icons/HighlightOff';
+import Chip from './Chip';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -34,13 +36,26 @@ const useStyles = makeStyles(theme => ({
     color: 'black',
   },
   dropdownStyle: {
-    marginTop: 32,
+    marginTop: 40,
   },
   labelStyles: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  chip: {
+    display: 'flex',
+    alignItems: 'center',
+    fontWeight: 'bold',
+  },
+  itemContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  icon: {
+    cursor: 'pointer',
   },
 }));
 
@@ -54,7 +69,6 @@ interface PropTypes {
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 
-
 // multi select component to be able to multi select options
 export default (props: PropTypes) => {
   const { selectedItems, options, setItemsParent, title } = props;
@@ -63,6 +77,15 @@ export default (props: PropTypes) => {
 
   const handleChange = (event: { target: { value: any } }) => {
     setItems(event.target.value);
+  };
+
+  const removeMetric = (metric: string) => {
+    const filteredItems = items.filter(item => item !== metric);
+    setItems(filteredItems);
+  };
+
+  const removeItems = () => {
+    setItems([]);
   };
 
   useEffect(() => {
@@ -80,6 +103,7 @@ export default (props: PropTypes) => {
         value={items}
         onChange={handleChange}
         input={<Input />}
+        style={{height: '40px'}}
         MenuProps={{
           classes: { paper: classes.dropdownStyle },
           variant: 'menu',
@@ -92,7 +116,25 @@ export default (props: PropTypes) => {
           },
         }}
         renderValue={(value: any) => {
-          return value.join(', ');
+          return (
+            <span className={classes.itemContainer}>
+              <span>
+                {value.map((val: string, idx: number) => (
+                  <Chip
+                    style={{ marginRight: '5px', height: '25px' }}
+                    key={`${val}-${idx}`}
+                    label={
+                      <span className={classes.chip}>
+                        <span>{val}</span>
+                        <HighlightOffIcon onClick={() => removeMetric(val)} className={classes.icon}></HighlightOffIcon>
+                      </span>
+                    }
+                  />
+                ))}
+              </span>
+              <HighlightOffIcon onClick={() => removeItems()} className={classes.icon}></HighlightOffIcon>
+            </span>
+          );
         }}
       >
         {options.map((item, idx) => (
