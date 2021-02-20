@@ -1,5 +1,6 @@
 import { LastKnownMetric, MultipleMetrics } from './interfaces/Metrics';
 
+// parses a metric object from an apollo query 
 const parseLastKnownMetric = (metric: any) => {
   const parsedMetric: LastKnownMetric = {
     at: metric.at,
@@ -10,6 +11,7 @@ const parseLastKnownMetric = (metric: any) => {
   return parsedMetric;
 };
 
+// parses a multiple metric object from an apollo query 
 const parseMultipleMetric = (multiMetric: any) => {
   const parsedMultiMetric: MultipleMetrics = {
     metric: multiMetric.metric,
@@ -18,6 +20,7 @@ const parseMultipleMetric = (multiMetric: any) => {
   return parsedMultiMetric;
 };
 
+// generates a random color
 const generateRandomColor = () => {
   let color = '#';
   for (let i = 0; i < 6; i++){
@@ -28,6 +31,7 @@ const generateRandomColor = () => {
   return color;
 };
 
+// checks if a value is unique
 const isUnique = (value: any, index: number, self: any) => {
   return self.indexOf(value) === index;
 }

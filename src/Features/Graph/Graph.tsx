@@ -23,6 +23,8 @@ const useStyles = makeStyles({
   },
 });
 
+
+// this generates the query for metrics the user has selected from which the interval of time gathered is between the time of the last known measurement and 30 minutes before that
 const generateQueryMultiples = (metrics: LastKnownMetric[]) => {
   const measurementsTemplate = `
     measurement: getMultipleMeasurements(input: {
@@ -54,19 +56,39 @@ const generateQueryMultiples = (metrics: LastKnownMetric[]) => {
   `;
 };
 
-const createAxis = (metrics: MultipleMetrics[], colors: string[]) => {
+// here we create the object properties for the axes (single or multiple)
+// currently, this will not render multiple axes. Whether this is an issue with the library or an implementation issue I am causing I am unsure.
+// I submitted an issue on the react-plotly repository to get more insight https://github.com/plotly/react-plotly.js/issues/232
+const createAxes = (metrics: MultipleMetrics[]) => {
   const types: string[] = metrics.map(metric => metric.measurements[0].unit).filter(isUnique);
+  const unfilteredRanges: { min: number; max: number; type: string }[] = metrics.map(metric => ({
+    min: Math.min(...metric.measurements.map(measurement => measurement.value)),
+    max: Math.max(...metric.measurements.map(measurement => measurement.value)),
+    type: metric.measurements[0].unit,
+  }));
   const axis: any = {};
 
-  types.map((type, idx) => {
+  const filteredRanges = types.map(type => {
+    const ranges = unfilteredRanges.filter(range => range.type === type);
+    return {
+      min: Math.min(...ranges.map(range => range.min)),
+      max: Math.max(...ranges.map(range => range.max)),
+      type,
+    };
+  });
+
+  filteredRanges.map((range, idx) => {
     axis[`yaxis${idx + 1}`] = {
-      title: type,
-      anchor: 'free',
+      title: range.type,
+      autorange: true,
+      anchor: 'x',
       overlaying: 'y',
       side: 'left',
       position: 0.15 * idx,
+      range: [range.min - 100, range.max + 100],
+      type: 'linear',
     };
-    return type;
+    return range;
   });
 
   return axis;
@@ -99,6 +121,7 @@ export default (props: PropTypes) => {
         }
       }
 
+      // we get the container pixels to generate what size the chart should be
       if (containerRef.current) {
         setGraphWidth(containerRef.current.clientWidth - 48);
         setGraphHeight(containerRef.current.clientHeight - 48);
@@ -108,7 +131,7 @@ export default (props: PropTypes) => {
     }
 
     if (error) {
-      dispatch(actions.metricsApiErrorReceived({error: 'Could not obtain data for chart'}))
+      dispatch(actions.metricsApiErrorReceived({ error: 'Could not obtain data for chart' }));
     }
 
     return () => {};
@@ -137,7 +160,7 @@ export default (props: PropTypes) => {
             width: graphWidth,
             height: graphHeight,
             borderRadius: '8px',
-            ...createAxis(metricsData, graphColors),
+            ...createAxes(metricsData),
           }}
         />
       )}
