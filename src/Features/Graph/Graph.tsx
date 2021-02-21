@@ -7,9 +7,11 @@ import { actions } from '../Graph/reducer';
 import { LastKnownMetric, MultipleMetrics } from '../../utils/interfaces/Metrics';
 import { isUnique, parseMultipleMetric } from '../../utils/common';
 import StateInterface from '../../utils/interfaces/State';
+import { withWidth } from '@material-ui/core';
 
 interface PropTypes {
   items: LastKnownMetric[];
+  width: string;
 }
 
 const useStyles = makeStyles({
@@ -93,9 +95,9 @@ const createAxes = (metrics: MultipleMetrics[]) => {
   return axis;
 };
 
-export default (props: PropTypes) => {
+export default withWidth()((props: PropTypes) => {
   const dispatch = useDispatch();
-  const { items } = props;
+  const { items, width } = props;
   const classes = useStyles();
   const containerRef = useRef<HTMLDivElement>(null);
   const [graphHeight, setGraphHeight] = useState<number>(0);
@@ -114,8 +116,9 @@ export default (props: PropTypes) => {
   const resize = () => {
     // we get the container pixels to generate what size the chart should be
     if (containerRef.current) {
+      const height = width === 'sm' ? 600 : width === 'xs' ? 400 : containerRef.current.clientHeight - 48;
       setGraphWidth(containerRef.current.clientWidth - 48);
-      setGraphHeight(containerRef.current.clientHeight - 48);
+      setGraphHeight(height);
     }
   };
 
@@ -171,4 +174,4 @@ export default (props: PropTypes) => {
       )}
     </div>
   );
-};
+});

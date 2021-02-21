@@ -21,15 +21,15 @@ interface PropStyles {
 }
 
 const useStyles = makeStyles({
-  container: {
+  container: (props: PropStyles) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    height: '93%',
+    height: props.width === 'xs' || props.width === 'sm' ? 'auto' : '93%',
     boxSizing: 'border-box',
-  },
+  }),
   innerContainer: (props: PropStyles) => ({
     display: 'flex',
     flexDirection: props.width === 'xs' || props.width === 'sm' ? 'column-reverse' : 'row',
@@ -42,7 +42,7 @@ const useStyles = makeStyles({
     alignItems: 'center',
     justifyContent: 'flex-start',
     width: props.width === 'xs' || props.width === 'sm' ? '100%' : '50%',
-    height: '100%',
+    height: props.width === 'xs' || props.width === 'sm' ? 'auto' : '100%',
     padding: '16px',
   }),
 });
