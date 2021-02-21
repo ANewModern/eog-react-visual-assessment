@@ -58,8 +58,6 @@ const generateQueryMultiples = (metrics: LastKnownMetric[]) => {
 };
 
 // here we create the object properties for the axes (single or multiple)
-// currently, this will not render multiple axes. Whether this is an issue with the library or an implementation issue I am causing I am unsure.
-// I submitted an issue on the react-plotly repository to get more insight https://github.com/plotly/react-plotly.js/issues/232
 const createAxes = (metrics: MultipleMetrics[]) => {
   const types: string[] = metrics.map(metric => metric.measurements[0].unit).filter(isUnique);
   const unfilteredRanges: { min: number; max: number; type: string }[] = metrics.map(metric => ({
@@ -78,21 +76,22 @@ const createAxes = (metrics: MultipleMetrics[]) => {
     };
   });
 
-  filteredRanges.map((range, idx) => {
-    axis[`yaxis${idx + 1}`] = {
+  const axisArr = filteredRanges.map((range, idx) => {
+    const axisLayout = {
       title: range.type,
       autorange: true,
-      anchor: 'x',
+      anchor: 'free',
       overlaying: 'y',
-      side: 'left',
-      position: 0.15 * idx,
+      side: !!(idx % 2) ? 'right' : 'left',
       range: [range.min - 100, range.max + 100],
       type: 'linear',
+      name: `yaxis${!!idx ? idx + 1 : ''}`,
     };
-    return range;
+    axis[`yaxis${!!idx ? idx + 1 : ''}`] = axisLayout;
+    return axisLayout;
   });
 
-  return axis;
+  return { axis, axisArr };
 };
 
 export default withWidth()((props: PropTypes) => {
@@ -102,6 +101,8 @@ export default withWidth()((props: PropTypes) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [graphHeight, setGraphHeight] = useState<number>(0);
   const [graphWidth, setGraphWidth] = useState<number>(0);
+  const [graphData, setGraphData] = useState<any>();
+  const [graphLayout, setGraphLayout] = useState<any>();
   const { metricsData, graphColors } = useSelector((state: StateInterface) => ({
     metricsData: state.metrics.metricsData,
     graphColors: state.metrics.graphColors,
@@ -148,30 +149,48 @@ export default withWidth()((props: PropTypes) => {
     // eslint-disable-next-line
   }, [loading, error, data]);
 
+  useEffect(() => {
+    if (!!metricsData.length) {
+      const axes = createAxes(metricsData);
+      const layout = {
+        width: graphWidth,
+        height: graphHeight,
+        plot_bgcolor: 'transparent',
+        paper_bgcolor: 'transparent',
+        ...axes.axis,
+      };
+
+      const data = metricsData.map((metric, idx) => {
+        return {
+          x: metric.measurements.map(measurement => new Date(measurement.at)),
+          y: metric.measurements.map(measurement => measurement.value),
+          type: 'scatter',
+          mode: 'lines',
+          marker: { color: graphColors[idx] },
+          yaxis: axes.axisArr
+            .filter((axis: any) => axis.title === metric.measurements[0].unit)[0]
+            .name.split('axis')
+            .join(''),
+          name: metric.metric,
+        };
+      });
+
+      console.log(layout);
+
+      setGraphData(data);
+      setGraphLayout(layout);
+    }
+    return () => {};
+    // eslint-disable-next-line
+  }, [metricsData]);
+
   return (
     <div className={classes.container} ref={containerRef}>
-      {!!items.length && !!metricsData.length && (
-        <Plot
-          data={metricsData.map((metric, idx) => {
-            return {
-              x: metric.measurements.map(measurement => new Date(measurement.at)),
-              y: metric.measurements.map(measurement => measurement.value),
-              type: 'scatter',
-              mode: 'lines',
-              marker: { color: graphColors[idx] },
-              yaxis: `yaxis${idx + 1}`,
-              name: metric.metric,
-            };
-          })}
-          config={{ responsive: true }}
-          layout={{
-            width: graphWidth,
-            height: graphHeight,
-            borderRadius: '8px',
-            ...createAxes(metricsData),
-          }}
-        />
-      )}
+      <span style={{ backgroundColor: 'white' }}>
+        {!!items.length && !!metricsData.length && (
+          <Plot data={graphData} config={{ responsive: true }} layout={graphLayout} />
+        )}
+      </span>
     </div>
   );
 });
