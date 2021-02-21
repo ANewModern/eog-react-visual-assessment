@@ -79,13 +79,19 @@ const createAxes = (metrics: MultipleMetrics[]) => {
   const axisArr = filteredRanges.map((range, idx) => {
     const axisLayout = {
       title: range.type,
-      autorange: true,
-      anchor: 'free',
+      autorange: false,
+      anchor: idx > 1 ? 'free' : 'x',
       overlaying: 'y',
-      side: !!(idx % 2) ? 'right' : 'left',
+      side: idx % 2 === 0 ? 'left' : 'right',
       range: [range.min - 100, range.max + 100],
       type: 'linear',
       name: `yaxis${!!idx ? idx + 1 : ''}`,
+      position: idx % 2 === 0 ? 0.85 : -0.85,
+      coloraxis: {
+        colorbar: {
+          bgColor: idx > 1 ? 'white' : 'transparent',
+        },
+      },
     };
     axis[`yaxis${!!idx ? idx + 1 : ''}`] = axisLayout;
     return axisLayout;
@@ -155,6 +161,7 @@ export default withWidth()((props: PropTypes) => {
       const layout = {
         width: graphWidth,
         height: graphHeight,
+        autosize: true,
         plot_bgcolor: 'transparent',
         paper_bgcolor: 'transparent',
         ...axes.axis,
@@ -174,8 +181,6 @@ export default withWidth()((props: PropTypes) => {
           name: metric.metric,
         };
       });
-
-      console.log(layout);
 
       setGraphData(data);
       setGraphLayout(layout);
