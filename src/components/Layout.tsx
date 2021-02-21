@@ -115,7 +115,7 @@ export default withWidth()((props: propTypes) => {
       <Box className={classes.container}>
         <Box className={classes.innerContainer} style={{ height: '30%' }}>
           <Box className={classes.componentContainer}>
-            {!!selectedMetrics.length && <Metrics items={selectedMetrics} />}
+            <Metrics items={selectedMetrics} />
           </Box>
           <Box className={classes.componentContainer} style={{ alignItems: 'flex-start' }}>
             {!!metricTypes.length && (
@@ -129,7 +129,7 @@ export default withWidth()((props: propTypes) => {
           </Box>
         </Box>
         <Box className={classes.innerContainer} style={{ height: '70%' }}>
-          {!!metricsLastKnown.length && <Graph items={metricsLastKnown} />}
+          <Graph items={metricsLastKnown} />
         </Box>
       </Box>
       <ToastContainer

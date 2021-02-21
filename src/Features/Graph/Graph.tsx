@@ -106,8 +106,9 @@ export default (props: PropTypes) => {
   }));
   const { loading, error, data } = useQuery(
     gql`
-      ${generateQueryMultiples(items)}
+      ${!!items.length ? generateQueryMultiples(items) : 'query Heartbeat { heartBeat }'}
     `,
+    { skip: !items.length },
   );
 
   const resize = () => {
@@ -146,7 +147,7 @@ export default (props: PropTypes) => {
 
   return (
     <div className={classes.container} ref={containerRef}>
-      {!!metricsData.length && (
+      {!!items.length && !!metricsData.length && (
         <Plot
           data={metricsData.map((metric, idx) => {
             return {

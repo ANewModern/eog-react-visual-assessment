@@ -68,10 +68,11 @@ export default withWidth()((props: PropTypes) => {
 
   const { loading, error, data } = useQuery(
     gql`
-      ${generateQueryLastKnown(items)}
+      ${!!items.length ? generateQueryLastKnown(items) : 'query Heartbeat { heartBeat }'}
     `,
     {
       pollInterval: 1000,
+      skip: !items.length,
     },
   );
 
@@ -97,6 +98,13 @@ export default withWidth()((props: PropTypes) => {
     // We add this line to ignore the warning to add Dispatch to the dependency array since we do not want a render when this changes
     // eslint-disable-next-line
   }, [loading, error, data]);
+
+  useEffect(() => {
+    if (!items.length) dispatch(actions.updateLastKnown([]));
+    return () => {};
+
+    // eslint-disable-next-line
+  }, [items]);
 
   return (
     <Box className={classes.container}>
