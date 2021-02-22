@@ -86,7 +86,8 @@ const createAxes = (metrics: MultipleMetrics[]) => {
       range: [range.min - 100, range.max + 100],
       type: 'linear',
       name: `yaxis${!!idx ? idx + 1 : ''}`,
-      position: idx % 2 === 0 ? 0.85 : -0.85,
+      position: 1.00,
+      gridcolor: idx > 0 ? 'transparent' : 'lightgrey',
       coloraxis: {
         colorbar: {
           bgColor: idx > 1 ? 'white' : 'transparent',
@@ -158,7 +159,9 @@ export default withWidth()((props: PropTypes) => {
 
   useEffect(() => {
     if (!!metricsData.length) {
-      const filteredMetrics = !!filters.length ? metricsData.filter(metric => filters.indexOf(metric.metric) !== -1) : metricsData
+      const filteredMetrics = !!filters.length
+        ? metricsData.filter(metric => filters.indexOf(metric.metric) !== -1)
+        : metricsData;
 
       const axes = createAxes(filteredMetrics);
       const layout = {
