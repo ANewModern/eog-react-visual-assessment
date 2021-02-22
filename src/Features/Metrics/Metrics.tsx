@@ -6,6 +6,7 @@ import { Box, Typography, withWidth } from '@material-ui/core';
 import { actions } from '../Graph/reducer';
 import StateInterface from '../../utils/interfaces/State';
 import { parseLastKnownMetric } from '../../utils/common';
+import { LastKnownMetric } from '../../utils/interfaces/Metrics';
 
 interface PropTypes {
   items: string[];
@@ -25,18 +26,23 @@ const useStyles = makeStyles({
     width: '100%',
     boxSizing: 'border-box',
   }),
-  card: {
+  card: (props: PropStyles) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'flex-start',
-    width: '200px',
-    height: '100px',
+    width: '150px',
+    height: '70px',
     borderRadius: '8px',
-    background: 'white',
     padding: '16px',
     margin: '8px',
-  },
+    cursor: 'pointer',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+    transition: 'all 0.3s cubic-bezier(.25,.8,.25,1)',
+    '&:hover': {
+      boxShadow: '0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)',
+    },
+  }),
 });
 
 // This generates a query for the last known values of selected metrics
@@ -64,7 +70,10 @@ export default withWidth()((props: PropTypes) => {
   const dispatch = useDispatch();
   const { items, width } = props;
   const classes = useStyles({ width });
-  const metricsLastKnown = useSelector((state: StateInterface) => state.metrics.metricsLastKnown);
+  const { metricsLastKnown, filters } = useSelector((state: StateInterface) => ({
+    metricsLastKnown: state.metrics.metricsLastKnown,
+    filters: state.metrics.filters,
+  }));
 
   const { loading, error, data } = useQuery(
     gql`
@@ -75,6 +84,11 @@ export default withWidth()((props: PropTypes) => {
       skip: !items.length,
     },
   );
+
+  const setFilter = (metric: LastKnownMetric) => {
+    const filterExists = filters.findIndex(filter => filter === metric.metric);
+    dispatch(actions.setMetricFilters(filterExists === -1 ? [...filters, metric.metric] : filters.filter(filter => filter !== metric.metric)));
+  };
 
   // If loading is false and data exists, we send the data to our state to use
   useEffect(() => {
@@ -109,7 +123,12 @@ export default withWidth()((props: PropTypes) => {
   return (
     <Box className={classes.container}>
       {metricsLastKnown.map((metric, idx) => (
-        <Box key={`${metric.metric}-${idx}`} className={classes.card}>
+        <Box
+          key={`${metric.metric}-${idx}`}
+          className={classes.card}
+          style={{ backgroundColor: filters.indexOf(metric.metric) !== -1 ? 'rgb(197, 208, 222)' : 'white' }}
+          onClick={() => setFilter(metric)}
+        >
           <Typography style={{ fontSize: '16px' }}>{metric.metric}</Typography>
           <Typography style={{ fontSize: '20px', fontWeight: 'bold' }}>{`${metric.value} ${metric.unit}`}</Typography>
         </Box>

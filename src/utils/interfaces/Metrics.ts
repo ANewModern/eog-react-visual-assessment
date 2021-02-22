@@ -4,6 +4,7 @@ export default interface MetricsInterface {
   metricsData: MultipleMetrics[];
   metricsLastKnown: LastKnownMetric[];
   graphColors: string[];
+  filters: string[];
 }
 
 export interface MultipleMetrics {

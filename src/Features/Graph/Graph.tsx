@@ -109,9 +109,10 @@ export default withWidth()((props: PropTypes) => {
   const [graphWidth, setGraphWidth] = useState<number>(0);
   const [graphData, setGraphData] = useState<any>();
   const [graphLayout, setGraphLayout] = useState<any>();
-  const { metricsData, graphColors } = useSelector((state: StateInterface) => ({
+  const { metricsData, graphColors, filters } = useSelector((state: StateInterface) => ({
     metricsData: state.metrics.metricsData,
     graphColors: state.metrics.graphColors,
+    filters: state.metrics.filters,
   }));
   const { loading, error, data } = useQuery(
     gql`
@@ -157,17 +158,20 @@ export default withWidth()((props: PropTypes) => {
 
   useEffect(() => {
     if (!!metricsData.length) {
-      const axes = createAxes(metricsData);
+      const filteredMetrics = !!filters.length ? metricsData.filter(metric => filters.indexOf(metric.metric) !== -1) : metricsData
+
+      const axes = createAxes(filteredMetrics);
       const layout = {
         width: graphWidth,
         height: graphHeight,
         autosize: true,
         plot_bgcolor: 'transparent',
         paper_bgcolor: 'transparent',
+        showlegend: width === 'xs' || width === 'sm' ? false : true,
         ...axes.axis,
       };
 
-      const data = metricsData.map((metric, idx) => {
+      const data = filteredMetrics.map((metric, idx) => {
         return {
           x: metric.measurements.map(measurement => new Date(measurement.at)),
           y: metric.measurements.map(measurement => measurement.value),
@@ -187,7 +191,7 @@ export default withWidth()((props: PropTypes) => {
     }
     return () => {};
     // eslint-disable-next-line
-  }, [metricsData]);
+  }, [metricsData, filters]);
 
   return (
     <div className={classes.container} ref={containerRef}>

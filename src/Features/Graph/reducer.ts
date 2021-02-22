@@ -10,7 +10,8 @@ const initialState: MetricState = {
   selectedMetrics: [],
   metricsData: [],
   metricsLastKnown: [],
-  graphColors: []
+  graphColors: [],
+  filters: [],
 };
 
 const slice = createSlice({
@@ -18,19 +19,22 @@ const slice = createSlice({
   initialState,
   reducers: {
     metricsDataReceived: (state, action: PayloadAction<Array<string>>) => {
-      state.metricTypes = action.payload
+      state.metricTypes = action.payload;
     },
     updateSelectedMetrics: (state, action: PayloadAction<Array<string>>) => {
-      state.selectedMetrics = action.payload
+      state.selectedMetrics = action.payload;
     },
     updateLastKnown: (state, action: PayloadAction<Array<LastKnownMetric>>) => {
-      state.metricsLastKnown = action.payload
+      state.metricsLastKnown = action.payload;
     },
     updateMultipleMetrics: (state, action: PayloadAction<Array<MultipleMetrics>>) => {
-      state.metricsData = action.payload
+      state.metricsData = action.payload;
     },
     setGraphColors: (state, action: PayloadAction<Array<string>>) => {
-      state.graphColors = action.payload
+      state.graphColors = action.payload;
+    },
+    setMetricFilters: (state, action: PayloadAction<Array<string>>) => {
+      state.filters = action.payload;
     },
     metricsApiErrorReceived: (state, action: PayloadAction<ApiErrorAction>) => state,
   },
